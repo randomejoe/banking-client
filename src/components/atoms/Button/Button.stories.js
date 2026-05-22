@@ -1,47 +1,19 @@
-import { fn } from "storybook/test";
+import Button from './Button.vue'
 
-import MyButton from "./Button.vue";
-
-// More on how to set up stories at: https://storybook.js.org/docs/writing-stories
 export default {
-  title: "Atoms/Button",
-  component: MyButton,
-  tags: ["autodocs"],
+  title: 'Atoms/Button',
+  component: Button,
+  tags: ['autodocs'],
   argTypes: {
-    size: {
-      control: { type: "select" },
-      options: ["small", "medium", "large"],
-    },
-    backgroundColor: { control: "color" },
+    variant: { control: 'select', options: ['primary', 'secondary', 'ghost', 'danger'] },
+    size: { control: 'select', options: ['sm', 'md', 'lg'] },
   },
-  // Use `fn` to spy on the onClick arg, which will appear in the actions panel once invoked: https://storybook.js.org/docs/essentials/actions#story-args
-  args: { onClick: fn() },
-};
+}
 
-// More on writing stories with args: https://storybook.js.org/docs/writing-stories/args
-export const Primary = {
-  args: {
-    primary: true,
-    label: "Button",
-  },
-};
-
-export const Secondary = {
-  args: {
-    label: "Button",
-  },
-};
-
-export const Large = {
-  args: {
-    size: "large",
-    label: "Button",
-  },
-};
-
-export const Small = {
-  args: {
-    size: "small",
-    label: "Button",
-  },
-};
+export const Primary = { args: { label: 'Confirm transfer', variant: 'primary', size: 'md' } }
+export const Secondary = { args: { label: 'Cancel', variant: 'secondary', size: 'md' } }
+export const Ghost = { args: { label: 'View details', variant: 'ghost', size: 'md' } }
+export const Danger = { args: { label: 'Reject', variant: 'danger', size: 'md' } }
+export const Large = { args: { label: 'Sign in', variant: 'primary', size: 'lg' } }
+export const Small = { args: { label: 'Use IBAN', variant: 'secondary', size: 'sm' } }
+export const Loading = { args: { label: 'Signing in…', variant: 'primary', size: 'md', loading: true } }

@@ -1,22 +1,14 @@
 /**
  * Application Configuration
- * 
- * Configuration values can be overridden using environment variables.
- * For Vite, use VITE_ prefix for environment variables.
- * 
- * Create a .env file in the frontend root to override defaults:
- * VITE_API_DOMAIN=http://localhost:8000
+ *
+ * Override using environment variables (VITE_ prefix for Vite).
+ * Create a .env file in the project root to set custom values:
+ *   VITE_API_DOMAIN=http://localhost:8080
  */
 
 const config = {
-  /**
-   * API Domain - Base URL for API requests
-   * @type {string}
-   * @default 'http://localhost'
-   */
-  apiDomain: import.meta.env.VITE_API_DOMAIN || 'http://localhost',
+  // Base URL for the banking API (Spring Boot runs on 8080 by default)
+  apiDomain: import.meta.env.VITE_API_DOMAIN || 'http://localhost:8080',
+}
 
-};
-
-// Freeze config to prevent accidental mutations
-export default Object.freeze(config);
+export default Object.freeze(config)
