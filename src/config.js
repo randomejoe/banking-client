@@ -8,7 +8,7 @@
 
 const config = {
   // Base URL for the banking API (Spring Boot runs on 8080 by default)
-  apiDomain: import.meta.env.VITE_API_DOMAIN || 'http://localhost:8080',
+  apiDomain: import.meta.env.VITE_API_DOMAIN || 'https://banking-api-vnzu.onrender.com',
 }
 
 export default Object.freeze(config)
