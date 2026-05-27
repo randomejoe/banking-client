@@ -77,7 +77,7 @@ async function handleLogin() {
     const data = await authStore.login(email.value, password.value)
 
     const user = data.user
-    if (user?.status === 'PENDING') {
+    if (user?.role === 'CUSTOMER' && user?.status !== 'ACTIVE') {
       router.push('/pending')
       return
     }

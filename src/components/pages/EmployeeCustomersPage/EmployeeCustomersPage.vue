@@ -20,14 +20,14 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th>Name</th><th>Email</th><th>BSN</th><th>Status</th><th>Actions</th>
+              <th>Name</th><th>Email</th><th>Created</th><th>Status</th><th>Actions</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="c in customers" :key="c.id">
               <td class="td-name">{{ c.firstName }} {{ c.lastName }}</td>
               <td>{{ c.email }}</td>
-              <td class="td-mono">{{ c.bsn }}</td>
+              <td>{{ formatDate(c.createdAt) }}</td>
               <td><Badge :status="(c.status || 'pending').toLowerCase()" /></td>
               <td>
                 <Button
@@ -98,7 +98,13 @@ async function loadCustomers() {
   try {
     isLoading.value = true
     errorMessage.value = ''
-    const data = await getCustomers({ search: search.value, status: statusFilter.value, page: page.value, size: 15 })
+    const data = await getCustomers({
+      search: search.value,
+      status: statusFilter.value,
+      page: page.value,
+      size: 15,
+      sort: 'createdAt,desc',
+    })
     customers.value = data.content ?? data
     totalPages.value = data.totalPages ?? 1
   } catch (error) {
@@ -109,6 +115,11 @@ async function loadCustomers() {
 }
 
 onMounted(loadCustomers)
+
+function formatDate(value) {
+  if (!value) return '—'
+  return new Date(value).toLocaleDateString('nl-NL')
+}
 </script>
 
 <style scoped>

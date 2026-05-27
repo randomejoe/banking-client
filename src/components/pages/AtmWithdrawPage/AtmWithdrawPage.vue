@@ -106,7 +106,6 @@ async function handleWithdraw() {
     errorMessage.value = ''
     await createTransaction({
       fromIban: iban.value,
-      toIban: 'ATM',
       amount: parseFloat(amount.value),
       type: 'WITHDRAWAL',
       description: 'ATM withdrawal',

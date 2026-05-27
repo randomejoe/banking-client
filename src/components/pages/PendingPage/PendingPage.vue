@@ -1,11 +1,10 @@
 <template>
   <div class="pending-bg">
     <div class="pending-card">
-      <div class="pending-icon">⏳</div>
-      <h2 class="pending-title">Account pending approval</h2>
+      <div class="pending-icon">{{ pageContent.icon }}</div>
+      <h2 class="pending-title">{{ pageContent.title }}</h2>
       <p class="pending-sub">
-        Your account request is being reviewed by an employee. You will
-        not have access to any features until it is approved.
+        {{ pageContent.message }}
       </p>
 
       <div class="pending-details">
@@ -20,7 +19,7 @@
         </div>
         <div class="pending-detail-row">
           <span class="pending-detail-key">Status</span>
-          <Badge status="pending" />
+          <Badge :status="(user?.status || 'pending').toLowerCase()" />
         </div>
       </div>
 
@@ -39,6 +38,20 @@ import Button from '../../atoms/Button/Button.vue'
 const router = useRouter()
 const authStore = useAuthStore()
 const user = computed(() => authStore.user)
+const pageContent = computed(() => {
+  if (user.value?.status === 'CLOSED') {
+    return {
+      icon: '!',
+      title: 'Account closed',
+      message: 'Your customer profile is closed. Banking and ATM features are unavailable for this account.',
+    }
+  }
+  return {
+    icon: '...',
+    title: 'Account pending approval',
+    message: 'Your account request is being reviewed by an employee. You will not have access to any features until it is approved.',
+  }
+})
 
 function handleLogout() {
   authStore.logout()

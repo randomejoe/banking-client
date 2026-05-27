@@ -4,6 +4,7 @@
     <div class="filter-bar">
       <div class="filter-grid">
         <Input v-model="ibanSearch" label="Search by IBAN" placeholder="NL…" />
+        <Select v-model="statusFilter" label="Status" :options="statusOptions" placeholder="All statuses" />
       </div>
       <div class="filter-actions">
         <Button label="Search" variant="primary" size="sm" :loading="isLoading" @click="loadAccounts" />
@@ -52,6 +53,7 @@
         <p class="iban-label">{{ editingAccount.iban }}</p>
         <Input v-model="editForm.absoluteTransferLimit" label="Absolute limit (€)" type="number" />
         <Input v-model="editForm.dailyTransferLimit"    label="Daily limit (€)"    type="number" />
+        <Select v-model="editForm.status" label="Status" :options="statusOptions" />
         <Alert v-if="editError" type="error" :message="editError" />
         <div class="modal-actions">
           <Button label="Save" variant="primary" size="md" :loading="isSaving" @click="saveAccount" />
@@ -68,6 +70,7 @@ import { useAuthStore } from '../../../stores/auth.js'
 import { getAccounts, updateAccount } from '../../../services/accountService.js'
 import AppShell from '../../organisms/AppShell/AppShell.vue'
 import Input from '../../atoms/Input/Input.vue'
+import Select from '../../atoms/Select/Select.vue'
 import Button from '../../atoms/Button/Button.vue'
 import Badge from '../../atoms/Badge/Badge.vue'
 import Alert from '../../atoms/Alert/Alert.vue'
@@ -80,6 +83,7 @@ const accounts = ref([])
 const isLoading = ref(false)
 const errorMessage = ref('')
 const ibanSearch = ref('')
+const statusFilter = ref('')
 const page = ref(0)
 const totalPages = ref(0)
 
@@ -87,7 +91,11 @@ const showEditModal = ref(false)
 const editingAccount = ref(null)
 const isSaving = ref(false)
 const editError = ref('')
-const editForm = reactive({ absoluteTransferLimit: '', dailyTransferLimit: '' })
+const editForm = reactive({ absoluteTransferLimit: '', dailyTransferLimit: '', status: 'ACTIVE' })
+const statusOptions = [
+  { value: 'ACTIVE', label: 'Active' },
+  { value: 'CLOSED', label: 'Closed' },
+]
 
 function formatAmount(n) {
   return new Intl.NumberFormat('nl-NL', { style: 'currency', currency: 'EUR' }).format(n ?? 0)
@@ -97,6 +105,7 @@ function openEdit(account) {
   editingAccount.value = account
   editForm.absoluteTransferLimit = String(account.absoluteTransferLimit ?? 0)
   editForm.dailyTransferLimit    = String(account.dailyTransferLimit    ?? 0)
+  editForm.status = account.status || 'ACTIVE'
   editError.value = ''
   showEditModal.value = true
 }
@@ -108,6 +117,7 @@ async function saveAccount() {
     await updateAccount(editingAccount.value.iban, {
       absoluteTransferLimit: parseFloat(editForm.absoluteTransferLimit),
       dailyTransferLimit:    parseFloat(editForm.dailyTransferLimit),
+      status: editForm.status,
     })
     showEditModal.value = false
     await loadAccounts()
@@ -120,6 +130,7 @@ async function saveAccount() {
 
 function clearSearch() {
   ibanSearch.value = ''
+  statusFilter.value = ''
   page.value = 0
   loadAccounts()
 }
@@ -133,7 +144,13 @@ async function loadAccounts() {
   try {
     isLoading.value = true
     errorMessage.value = ''
-    const data = await getAccounts({ iban: ibanSearch.value, page: page.value, size: 15 })
+    const data = await getAccounts({
+      iban: ibanSearch.value,
+      status: statusFilter.value,
+      page: page.value,
+      size: 15,
+      sort: 'createdAt,desc',
+    })
     accounts.value = data.content ?? data
     totalPages.value = data.totalPages ?? 1
   } catch (error) {

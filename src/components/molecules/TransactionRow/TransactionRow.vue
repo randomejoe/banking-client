@@ -7,7 +7,7 @@
     <td class="tx-cell tx-iban">{{ shortIban(transaction.fromIban) }}</td>
     <td class="tx-cell tx-iban">{{ shortIban(transaction.toIban) }}</td>
     <td class="tx-cell tx-amount">{{ formatAmount(transaction.amount) }}</td>
-    <td v-if="showInitiatedBy" class="tx-cell tx-muted">{{ transaction.initiatedBy }}</td>
+    <td v-if="showInitiatedBy" class="tx-cell tx-muted">{{ transaction.initiatedByUserId }}</td>
   </tr>
 </template>
 

@@ -8,7 +8,23 @@
       <div class="section-card">
         <div class="card-header">
           <p class="section-label">Customer profile</p>
-          <Badge :status="(customer.status || 'pending').toLowerCase()" />
+          <div class="profile-actions">
+            <Badge :status="(customer.status || 'pending').toLowerCase()" />
+            <Button
+              v-if="customer.status !== 'CLOSED'"
+              label="Close customer"
+              variant="danger"
+              size="sm"
+              @click="openCustomerStatus('CLOSED')"
+            />
+            <Button
+              v-else
+              label="Reactivate customer"
+              variant="primary"
+              size="sm"
+              @click="openCustomerStatus('ACTIVE')"
+            />
+          </div>
         </div>
         <div class="profile-grid">
           <div v-for="field in profileFields" :key="field.label" class="profile-field">
@@ -26,7 +42,7 @@
               <Badge :status="account.type ? account.type.toLowerCase() : 'checking'" />
               <Badge :status="account.status ? account.status.toLowerCase() : 'active'" />
             </div>
-            <Button label="Edit limits" variant="secondary" size="sm" @click="openLimits(account)" />
+            <Button label="Edit account" variant="secondary" size="sm" @click="openLimits(account)" />
           </div>
           <p class="account-iban">{{ account.iban }}</p>
           <p class="account-balance">{{ formatAmount(account.balance) }}</p>
@@ -58,10 +74,28 @@
         <p class="iban-label">{{ editingAccount.iban }}</p>
         <Input v-model="editForm.absoluteTransferLimit" label="Absolute limit (€)" type="number" />
         <Input v-model="editForm.dailyTransferLimit"    label="Daily limit (€)"    type="number" />
+        <Select v-model="editForm.status" label="Status" :options="statusOptions" />
         <Alert v-if="limitsError" type="error" :message="limitsError" />
         <div class="modal-actions">
           <Button label="Save changes" variant="primary" size="md" :loading="savingLimits" @click="saveLimits" />
           <Button label="Cancel" variant="secondary" size="md" @click="showLimitsModal = false" />
+        </div>
+      </div>
+    </AppModal>
+
+    <AppModal v-model="showCustomerStatusModal" :title="customerStatusModalTitle">
+      <div class="form-stack">
+        <p class="modal-text">{{ customerStatusModalText }}</p>
+        <Alert v-if="customerStatusError" type="error" :message="customerStatusError" />
+        <div class="modal-actions">
+          <Button
+            :label="customerStatusConfirmLabel"
+            :variant="customerStatusTarget === 'CLOSED' ? 'danger' : 'primary'"
+            size="md"
+            :loading="savingCustomerStatus"
+            @click="saveCustomerStatus"
+          />
+          <Button label="Cancel" variant="secondary" size="md" @click="showCustomerStatusModal = false" />
         </div>
       </div>
     </AppModal>
@@ -72,13 +106,14 @@
 import { ref, computed, reactive, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAuthStore } from '../../../stores/auth.js'
-import { getCustomerById } from '../../../services/userService.js'
+import { getCustomerById, updateCustomer } from '../../../services/userService.js'
 import { getAccounts, updateAccount } from '../../../services/accountService.js'
 import { getTransactions } from '../../../services/transactionService.js'
 import AppShell from '../../organisms/AppShell/AppShell.vue'
 import Badge from '../../atoms/Badge/Badge.vue'
 import Button from '../../atoms/Button/Button.vue'
 import Input from '../../atoms/Input/Input.vue'
+import Select from '../../atoms/Select/Select.vue'
 import Alert from '../../atoms/Alert/Alert.vue'
 import AppModal from '../../molecules/AppModal/AppModal.vue'
 import TransactionRow from '../../molecules/TransactionRow/TransactionRow.vue'
@@ -97,7 +132,29 @@ const showLimitsModal = ref(false)
 const editingAccount = ref(null)
 const savingLimits = ref(false)
 const limitsError = ref('')
-const editForm = reactive({ absoluteTransferLimit: '', dailyTransferLimit: '' })
+const editForm = reactive({ absoluteTransferLimit: '', dailyTransferLimit: '', status: 'ACTIVE' })
+const statusOptions = [
+  { value: 'ACTIVE', label: 'Active' },
+  { value: 'CLOSED', label: 'Closed' },
+]
+const showCustomerStatusModal = ref(false)
+const customerStatusTarget = ref('')
+const customerStatusError = ref('')
+const savingCustomerStatus = ref(false)
+
+const customerStatusModalTitle = computed(() =>
+  customerStatusTarget.value === 'CLOSED' ? 'Close customer' : 'Reactivate customer'
+)
+const customerStatusConfirmLabel = computed(() =>
+  customerStatusTarget.value === 'CLOSED' ? 'Close customer' : 'Reactivate customer'
+)
+const customerStatusModalText = computed(() => {
+  const name = customer.value ? `${customer.value.firstName} ${customer.value.lastName}` : 'this customer'
+  if (customerStatusTarget.value === 'CLOSED') {
+    return `Close ${name}'s customer profile? This blocks normal banking and ATM access, but does not delete their data or close individual bank accounts.`
+  }
+  return `Reactivate ${name}'s customer profile? This restores customer access while keeping existing account statuses unchanged.`
+})
 
 const profileFields = computed(() => {
   const c = customer.value
@@ -120,6 +177,7 @@ function openLimits(account) {
   editingAccount.value = account
   editForm.absoluteTransferLimit = String(account.absoluteTransferLimit ?? 0)
   editForm.dailyTransferLimit    = String(account.dailyTransferLimit    ?? 0)
+  editForm.status = account.status || 'ACTIVE'
   limitsError.value = ''
   showLimitsModal.value = true
 }
@@ -131,6 +189,7 @@ async function saveLimits() {
     await updateAccount(editingAccount.value.iban, {
       absoluteTransferLimit: parseFloat(editForm.absoluteTransferLimit),
       dailyTransferLimit:    parseFloat(editForm.dailyTransferLimit),
+      status: editForm.status,
     })
     showLimitsModal.value = false
     await loadCustomer()
@@ -141,6 +200,26 @@ async function saveLimits() {
   }
 }
 
+function openCustomerStatus(status) {
+  customerStatusTarget.value = status
+  customerStatusError.value = ''
+  showCustomerStatusModal.value = true
+}
+
+async function saveCustomerStatus() {
+  try {
+    savingCustomerStatus.value = true
+    customerStatusError.value = ''
+    await updateCustomer(route.params.id, { status: customerStatusTarget.value })
+    showCustomerStatusModal.value = false
+    await loadCustomer()
+  } catch (error) {
+    customerStatusError.value = error.message
+  } finally {
+    savingCustomerStatus.value = false
+  }
+}
+
 async function loadCustomer() {
   try {
     isLoading.value = true
@@ -148,7 +227,7 @@ async function loadCustomer() {
     const [customerData, accountsData, txData] = await Promise.all([
       getCustomerById(route.params.id),
       getAccounts({ userId: route.params.id }),
-      getTransactions({ customerId: route.params.id, size: 10 }),
+      getTransactions({ customerId: route.params.id, size: 10, sort: 'timestamp,desc' }),
     ])
     customer.value = customerData
     // Use full AccountResponse (has limits) instead of CustomerDetailResponse.accounts (no limits)
@@ -180,6 +259,14 @@ onMounted(loadCustomer)
   margin-bottom: 1rem;
 }
 
+.profile-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
 .section-label { margin: 0 0 1rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-muted); font-weight: 600; }
 
 .profile-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
@@ -204,6 +291,7 @@ onMounted(loadCustomer)
 
 .form-stack { display: flex; flex-direction: column; gap: 1rem; }
 .iban-label { margin: 0; font-family: monospace; font-size: 0.875rem; color: var(--color-muted); }
+.modal-text { margin: 0; font-size: 0.875rem; line-height: 1.5; color: var(--color-muted); }
 .modal-actions { display: flex; gap: 0.75rem; }
 .modal-actions > * { flex: 1; }
 </style>

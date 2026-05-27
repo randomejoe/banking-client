@@ -88,8 +88,8 @@ router.beforeEach(async (to) => {
 
   const user = authStore.user
 
-  // Pending users can only see the pending page
-  if (user?.status === 'PENDING' && to.name !== 'pending') {
+  // Customers without an active profile can only see the limited-access page.
+  if (user?.role === 'CUSTOMER' && user?.status !== 'ACTIVE' && to.name !== 'pending') {
     return { name: 'pending' }
   }
 

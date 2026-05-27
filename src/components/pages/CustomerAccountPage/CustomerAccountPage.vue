@@ -27,11 +27,11 @@
       <div class="account-limits">
         <div class="limit-item">
           <p class="limit-label">Absolute limit</p>
-          <p class="limit-value">{{ formatAmount(account.absoluteLimit) }}</p>
+          <p class="limit-value">{{ formatAmount(account.absoluteTransferLimit) }}</p>
         </div>
         <div class="limit-item">
           <p class="limit-label">Daily limit</p>
-          <p class="limit-value">{{ formatAmount(account.dailyLimit) }}</p>
+          <p class="limit-value">{{ formatAmount(account.dailyTransferLimit) }}</p>
         </div>
       </div>
     </div>
@@ -84,7 +84,7 @@ const profileFields = computed(() => {
     { label: 'Last name',  value: u.lastName  || '—' },
     { label: 'Email',      value: u.email     || '—' },
     { label: 'BSN',        value: u.bsn       || '—' },
-    { label: 'Phone',      value: u.phone     || '—' },
+    { label: 'Phone',      value: u.phoneNumber || '—' },
     { label: 'Status',     value: u.status    || '—' },
   ]
 })

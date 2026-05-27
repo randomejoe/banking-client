@@ -51,7 +51,7 @@ async function handleLogin() {
   try {
     isLoading.value = true
     errorMessage.value = ''
-    const data = await login(email.value, password.value)
+    const data = await login(email.value, password.value, { persist: false })
 
     const user = data.user
     if (user?.role !== 'CUSTOMER') {

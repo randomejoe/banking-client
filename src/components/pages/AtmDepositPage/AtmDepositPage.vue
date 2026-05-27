@@ -104,7 +104,6 @@ async function handleDeposit() {
     isLoading.value = true
     errorMessage.value = ''
     await createTransaction({
-      fromIban: 'ATM',
       toIban: iban.value,
       amount: parseFloat(amount.value),
       type: 'DEPOSIT',

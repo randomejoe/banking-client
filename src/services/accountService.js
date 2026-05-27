@@ -4,13 +4,14 @@ import { get, patch } from '../utils/api.js'
 export async function getAccounts(options = {}) {
   const params = new URLSearchParams()
 
-  if (options.userId) params.set('userId', options.userId)
+  if (options.userId != null) params.set('userId', options.userId)
   if (options.iban) params.set('iban', options.iban)
   if (options.name) params.set('name', options.name)
   if (options.type) params.set('type', options.type)
   if (options.status) params.set('status', options.status)
   if (options.page != null) params.set('page', options.page)
   if (options.size != null) params.set('size', options.size)
+  if (options.sort) params.set('sort', options.sort)
 
   const endpoint = params.toString() ? `/accounts?${params.toString()}` : '/accounts'
   const response = await get(endpoint)

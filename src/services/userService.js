@@ -8,6 +8,7 @@ export async function getCustomers(options = {}) {
   if (options.search) params.set('search', options.search)
   if (options.page != null) params.set('page', options.page)
   if (options.size != null) params.set('size', options.size)
+  if (options.sort) params.set('sort', options.sort)
 
   const endpoint = params.toString() ? `/users?${params.toString()}` : '/users'
   const response = await get(endpoint)

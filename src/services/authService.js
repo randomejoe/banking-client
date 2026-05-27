@@ -5,8 +5,9 @@ export function isLoggedIn() {
   return !!localStorage.getItem('token')
 }
 
-// Sends login credentials and stores the returned JWT token.
-export async function login(email, password) {
+// Sends login credentials and optionally stores the returned JWT token.
+export async function login(email, password, options = {}) {
+  const { persist = true } = options
   const response = await post('/auth/login', { email, password })
   const data = await response.json()
 
@@ -14,7 +15,9 @@ export async function login(email, password) {
     throw new Error(data.message || 'Login failed')
   }
 
-  localStorage.setItem('token', data.token.value)
+  if (persist) {
+    localStorage.setItem('token', data.token.value)
+  }
   return data
 }
 

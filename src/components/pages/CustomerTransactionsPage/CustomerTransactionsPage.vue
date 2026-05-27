@@ -6,6 +6,8 @@
         <Input v-model="filters.minAmount" label="Min amount" type="number" placeholder="0.00" />
         <Input v-model="filters.maxAmount" label="Max amount" type="number" placeholder="0.00" />
         <Input v-model="filters.iban" label="IBAN contains" placeholder="NL…" />
+        <Input v-model="filters.startDate" label="From date" type="date" />
+        <Input v-model="filters.endDate" label="To date" type="date" />
         <Select v-model="filters.type" label="Type" :options="typeOptions" placeholder="All types" />
       </div>
       <div class="filter-actions">
@@ -73,7 +75,7 @@ const total = ref(0)
 const totalPages = ref(0)
 
 const filters = reactive({
-  minAmount: '', maxAmount: '', iban: '', type: '',
+  minAmount: '', maxAmount: '', iban: '', startDate: '', endDate: '', type: '',
 })
 
 const typeOptions = [

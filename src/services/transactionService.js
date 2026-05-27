@@ -9,8 +9,11 @@ export async function getTransactions(filters = {}) {
   if (filters.type) params.set('type', filters.type)
   if (filters.minAmount != null && filters.minAmount !== '') params.set('minAmount', filters.minAmount)
   if (filters.maxAmount != null && filters.maxAmount !== '') params.set('maxAmount', filters.maxAmount)
+  if (filters.startDate) params.set('startDate', filters.startDate)
+  if (filters.endDate) params.set('endDate', filters.endDate)
   if (filters.page != null) params.set('page', filters.page)
   if (filters.size != null) params.set('size', filters.size)
+  if (filters.sort) params.set('sort', filters.sort)
 
   const endpoint = params.toString() ? `/transactions?${params.toString()}` : '/transactions'
   const response = await get(endpoint)
