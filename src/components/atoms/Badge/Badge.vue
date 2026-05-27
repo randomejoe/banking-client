@@ -1,43 +1,39 @@
 <template>
-  <span :class="classes">
-    <slot></slot>
-  </span>
+  <span :class="['badge', `badge-${status}`]">{{ status }}</span>
 </template>
 
 <script setup>
-import { computed } from 'vue';
-
-const props = defineProps({
-  variant: {
+defineProps({
+  // Maps directly to a status/type string from the API.
+  status: {
     type: String,
-    default: 'default',
-    validator: (value) => ['default', 'primary', 'secondary', 'success', 'warning', 'danger'].includes(value),
+    required: true,
+    validator: (v) =>
+      ['active', 'pending', 'closed', 'transfer', 'deposit', 'withdrawal', 'checking', 'savings', 'ACTIVE', 'PENDING', 'CLOSED'].includes(v),
   },
-  size: {
-    type: String,
-    default: 'md',
-    validator: (value) => ['sm', 'md', 'lg'].includes(value),
-  },
-});
-
-const classes = computed(() => {
-  const base = 'inline-flex items-center font-medium rounded-full';
-  
-  const variants = {
-    default: 'bg-gray-100 text-gray-800',
-    primary: 'bg-blue-100 text-blue-800',
-    secondary: 'bg-purple-100 text-purple-800',
-    success: 'bg-green-100 text-green-800',
-    warning: 'bg-yellow-100 text-yellow-800',
-    danger: 'bg-red-100 text-red-800',
-  };
-  
-  const sizes = {
-    sm: 'px-2 py-0.5 text-xs',
-    md: 'px-3 py-1 text-sm',
-    lg: 'px-4 py-1.5 text-base',
-  };
-  
-  return `${base} ${variants[props.variant]} ${sizes[props.size]}`;
-});
+})
 </script>
+
+<style scoped>
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.badge-active,
+.badge-ACTIVE   { background-color: var(--color-success-soft); color: #16a34a; }
+.badge-pending,
+.badge-PENDING  { background-color: var(--color-warning-soft); color: #d97706; }
+.badge-closed,
+.badge-CLOSED   { background-color: var(--color-danger-soft); color: #dc2626; }
+.badge-transfer { background-color: var(--color-brand-soft); color: var(--color-brand); }
+.badge-deposit  { background-color: var(--color-success-soft); color: #16a34a; }
+.badge-withdrawal { background-color: var(--color-warning-soft); color: #d97706; }
+.badge-checking { background-color: rgba(139, 92, 246, 0.1); color: #7c3aed; }
+.badge-savings  { background-color: var(--color-brand-soft); color: var(--color-brand); }
+</style>
