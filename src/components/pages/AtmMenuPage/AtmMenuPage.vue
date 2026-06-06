@@ -44,7 +44,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
-import { getAccounts } from '../../../services/accountService.js'
+import { getOwnAccounts } from '../../../services/accountService.js'
 import Select from '../../atoms/Select/Select.vue'
 
 const router = useRouter()
@@ -78,7 +78,7 @@ onMounted(async () => {
   if (stored) user.value = JSON.parse(stored)
 
   try {
-    const data = await getAccounts()
+    const data = await getOwnAccounts()
     accounts.value = data.content ?? data
     if (accounts.value.length > 0) {
       selectedIban.value = accounts.value[0].iban

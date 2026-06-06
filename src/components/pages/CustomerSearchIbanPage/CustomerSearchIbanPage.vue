@@ -53,7 +53,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { useAuthStore } from '../../../stores/auth.js'
-import { getAccounts } from '../../../services/accountService.js'
+import { searchTransferTargets } from '../../../services/accountService.js'
 import AppShell from '../../organisms/AppShell/AppShell.vue'
 import Input from '../../atoms/Input/Input.vue'
 import Button from '../../atoms/Button/Button.vue'
@@ -75,8 +75,7 @@ async function handleSearch() {
     isLoading.value = true
     errorMessage.value = ''
     const name = [firstName.value, lastName.value].filter(Boolean).join(' ').trim()
-    // GET /accounts?name=... returns AccountSearchResponse { iban, firstName, lastName }
-    const data = await getAccounts({ name, status: 'ACTIVE', size: 50 })
+    const data = await searchTransferTargets({ name, size: 50 })
     const accounts = data.content ?? data
     results.value = accounts.map(a => ({
       name: `${a.firstName} ${a.lastName}`,
