@@ -53,7 +53,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../../stores/auth.js'
-import { getAccounts } from '../../../services/accountService.js'
+import { getOwnAccounts } from '../../../services/accountService.js'
 import AppShell from '../../organisms/AppShell/AppShell.vue'
 import Badge from '../../atoms/Badge/Badge.vue'
 
@@ -76,7 +76,7 @@ function formatAmount(amount) {
 onMounted(async () => {
   try {
     isLoading.value = true
-    const data = await getAccounts()
+    const data = await getOwnAccounts()
     accounts.value = data.content ?? data
   } catch (error) {
     errorMessage.value = error.message

@@ -62,7 +62,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../../../stores/auth.js'
-import { getAccounts } from '../../../services/accountService.js'
+import { getOwnAccounts } from '../../../services/accountService.js'
 import { getTransactions } from '../../../services/transactionService.js'
 import AppShell from '../../organisms/AppShell/AppShell.vue'
 import Badge from '../../atoms/Badge/Badge.vue'
@@ -96,7 +96,7 @@ function formatAmount(amount) {
 onMounted(async () => {
   try {
     isLoading.value = true
-    const [accData, txData] = await Promise.all([getAccounts(), getTransactions({ size: 5 })])
+    const [accData, txData] = await Promise.all([getOwnAccounts(), getTransactions({ size: 5 })])
     accounts.value = accData.content ?? accData
     recentTransactions.value = txData.content ?? txData
   } catch (error) {
