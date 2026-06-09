@@ -23,6 +23,13 @@
             class="btn-full"
             @click="handleLogin"
           />
+          <Button
+            label="Return to bank"
+            variant="secondary"
+            size="lg"
+            class="btn-full"
+            @click="returnToBank"
+          />
         </div>
       </div>
     </div>
@@ -42,6 +49,10 @@ const email = ref('')
 const password = ref('')
 const isLoading = ref(false)
 const errorMessage = ref('')
+
+function returnToBank() {
+  router.push({ name: 'login' })
+}
 
 async function handleLogin() {
   if (!email.value || !password.value) {
