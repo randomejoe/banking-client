@@ -1,4 +1,5 @@
 import { get, patch } from '../utils/api.js'
+import { useAuthStore } from '../stores/auth.js' 
 
 // Fetches accounts for the current user (or all accounts for employees).
 export async function getAccounts(options = {}) {
@@ -13,7 +14,14 @@ export async function getAccounts(options = {}) {
   if (options.size != null) params.set('size', options.size)
   if (options.sort) params.set('sort', options.sort)
 
-  const endpoint = params.toString() ? `/accounts?${params.toString()}` : '/accounts'
+  // 🔄 Check if the logged-in user is a customer
+  const authStore = useAuthStore()
+  const isCustomer = authStore.user?.role === 'CUSTOMER'
+  
+  // 🛣️ Dynamically route to /accounts/me or /accounts
+  const basePath = isCustomer ? '/accounts/me' : '/accounts'
+
+  const endpoint = params.toString() ? `${basePath}?${params.toString()}` : basePath
   const response = await get(endpoint)
   const data = await response.json()
 
