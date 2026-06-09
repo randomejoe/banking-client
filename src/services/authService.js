@@ -34,7 +34,12 @@ export async function register(firstName, lastName, email, bsn, phone, password)
   const data = await response.json()
 
   if (!response.ok) {
-    throw new Error(data.message || 'Registration failed')
+    const error = new Error(data.message || 'Registration failed')
+    if (data.fieldErrors) {
+      error.fieldErrors = data.fieldErrors
+    }
+    error.status = data.status
+    throw error
   }
 
   return data
