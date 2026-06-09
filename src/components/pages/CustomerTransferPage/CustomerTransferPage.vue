@@ -93,7 +93,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useAuthStore } from '../../../stores/auth.js'
-import { getAccounts } from '../../../services/accountService.js'
+import { getOwnAccounts } from '../../../services/accountService.js'
 import { createTransaction } from '../../../services/transactionService.js'
 import AppShell from '../../organisms/AppShell/AppShell.vue'
 import Select from '../../atoms/Select/Select.vue'
@@ -168,7 +168,7 @@ async function handleTransfer() {
 
 onMounted(async () => {
   try {
-    const data = await getAccounts()
+    const data = await getOwnAccounts()
     accounts.value = data.content ?? data
     if (accounts.value.length > 0) fromIban.value = accounts.value[0].iban
   } catch (error) {

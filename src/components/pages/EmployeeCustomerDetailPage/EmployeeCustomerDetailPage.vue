@@ -230,7 +230,7 @@ async function loadCustomer() {
       getTransactions({ customerId: route.params.id, size: 10, sort: 'timestamp,desc' }),
     ])
     customer.value = customerData
-    // Use full AccountResponse (has limits) instead of CustomerDetailResponse.accounts (no limits)
+    // Use full employee account response (has limits) instead of CustomerDetailResponse.accounts (no limits)
     accounts.value = accountsData.content ?? accountsData
     transactions.value = txData.content ?? txData
   } catch (error) {

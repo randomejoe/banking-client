@@ -75,6 +75,19 @@ const form = reactive({
   confirm: '',
 })
 
+function applyFieldErrors(fieldErrors = {}) {
+  const mapped = {}
+
+  if (fieldErrors.firstName) mapped.firstName = fieldErrors.firstName
+  if (fieldErrors.lastName) mapped.lastName = fieldErrors.lastName
+  if (fieldErrors.email) mapped.email = fieldErrors.email
+  if (fieldErrors.bsn) mapped.bsn = fieldErrors.bsn
+  if (fieldErrors.phoneNumber) mapped.phone = fieldErrors.phoneNumber
+  if (fieldErrors.password) mapped.password = fieldErrors.password
+
+  errors.value = mapped
+}
+
 function validate() {
   const e = {}
   if (!form.firstName) e.firstName = 'Required'
@@ -97,7 +110,12 @@ async function handleRegister() {
     await authStore.register(form.firstName, form.lastName, form.email, form.bsn, form.phone, form.password)
     submitted.value = true
   } catch (error) {
-    errorMessage.value = error.message || 'Registration failed. Please try again.'
+    if (error.fieldErrors) {
+      applyFieldErrors(error.fieldErrors)
+      errorMessage.value = 'Please fix the highlighted fields and try again.'
+    } else {
+      errorMessage.value = error.message || 'Registration failed. Please try again.'
+    }
   } finally {
     isLoading.value = false
   }
